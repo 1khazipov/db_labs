@@ -12,10 +12,10 @@ VALUES (1, "Albert", "Tatar"),
        (5, "Andrei", "Russian"),
        (6, "Elaman", "Tatar"),
        (7, "Oleg", "Russian"),
-       (8, "Mikhail", "Russian")
-       (9, "Polina", "Russian")
-       (10, "Alina", "Russian")
-       (11, "Leila", "Tatar")
+       (8, "Mikhail", "Russian"),
+       (9, "Polina", "Russian"),
+       (10, "Alina", "Russian"),
+       (11, "Leila", "Tatar"),
        (12, "Nikita", "Russian");
 
 CREATE TABLE Specialization (
