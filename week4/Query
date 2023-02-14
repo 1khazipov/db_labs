@@ -23,4 +23,4 @@ INNER JOIN Enroll
 On Course.name == Enroll.name
 INNER JOIN Student
 On Student.id == Enroll.id
-where Student.native_language == "English"
+where Student.native_language == "English";
