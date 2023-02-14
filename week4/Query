@@ -1,0 +1,26 @@
+SELECT name FROM Student
+LIMIT 10;
+
+SELECT name FROM Student
+where native_language <> "Russian";
+
+SELECT Student.name
+FROM Student INNER JOIN Takes
+ON Student.id = Takes.id
+where Takes.name == "Robotics";
+
+SELECT Course.name, Student.name
+FROM Student
+INNER JOIN Enroll
+ON Student.id = Enroll.id
+INNER JOIN Course 
+ON Enroll.name == Course.name
+where Course.credits < 3;
+
+SELECT Course.name 
+From Course
+INNER JOIN Enroll
+On Course.name == Enroll.name
+INNER JOIN Student
+On Student.id == Enroll.id
+where Student.native_language == "English"
