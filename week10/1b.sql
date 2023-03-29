@@ -1,56 +1,97 @@
--- add column with bank names
-ALTER TABLE accounts
-ADD COLUMN BankName VARCHAR(50);
+ALTER TABLE accounts ADD COLUMN bank_name VARCHAR(255);
 
-UPDATE accounts
-SET BankName = 'SberBank'
-WHERE id = 1 or id = 3;
+UPDATE accounts 
+SET bank_name = 'SberBank' 
+WHERE id = 1;
 
-UPDATE accounts
-SET BankName = 'Tinkoff'
+UPDATE accounts 
+SET bank_name = 'SberBank' 
+WHERE id = 3;
+
+UPDATE accounts 
+SET bank_name = 'Tinkoff' 
 WHERE id = 2;
 
+INSERT INTO accounts 
+VALUES (4, 'FeeStorage', 0, 'RUB');
 
-INSERT INTO accounts (id, name, credit, currency, bank_name)
-VALUES (3, 'Account 3', 1000, 'RUB', 'SberBank'),
-       (4, 'Fees Account', 0, 'RUB', '');
+CREATE OR REPLACE FUNCTION send_money_fee(id_from INT, id_to INT, amount float)
+returns boolean
+AS
+$$
+declare
+    balance float;
+    fee INT;
+    bank_name1 VARCHAR(255);
+    bank_name2 VARCHAR(255);
+
+BEGIN
+    SELECT bank_name into bank_name1 
+    FROM accounts
+    WHERE id = id_from;
+
+    SELECT bank_name into bank_name2 
+    FROM accounts 
+    WHERE id = id_to;
+
+    if bank_name1 = bank_name2 then
+        SELECT 30 into fee;
+    else
+        SELECT 0 into fee;
+    end if;
+
+    SELECT credit into balance 
+    FROM accounts 
+    WHERE id = id_from;
+
+    if balance < amount then
+        return false;
+    end if;
+
+    UPDATE accounts 
+    SET credit = balance - amount
+    WHERE id = id_from;
+
+    UPDATE accounts 
+    SET credit = balance + amount 
+    SET id = id_to;
+
+    UPDATE accounts 
+    SET credit = credit + fee 
+    SET id = 4;
+
+    return true;
+END;
+$$ language plpgsql;
 
 BEGIN;
+    savepoint sp1;
 
-    UPDATE accounts 
-    SET credit = credit + 500 
-    WHERE id = 1;
+    SELECT send_money_fee(1, 3, 500);
 
-    UPDATE accounts 
-    SET credit = credit - 500 
-    WHERE id = 3;
+    SELECT * 
+    FROM accounts 
+    ORDER BY id;
 
+    ROllBACK to sp1;
 
-    UPDATE accounts 
-    SET credit = credit - 700 
-    WHERE id = 2;
+    savepoint sp2;
 
-    UPDATE accounts 
-    SET credit = credit + 670 
-    WHERE id = 1;
+    SELECT send_money_fee(2, 1, 700);
 
-    UPDATE accounts
-    SET credit = credit + 30
-    WHERE id = 4;
+    SELECT * 
+    FROM accounts 
+    ORDER BY id;
 
+    ROllBACK to sp2;
 
-    UPDATE accounts 
-    SET credit = credit + 100 
-    WHERE id = 2;
+    savepoint sp3;
+    
+    SELECT send_money_fee(2, 3, 100);
 
-    UPDATE accounts 
-    SET credit = credit - 130 
-    WHERE id = 3;
+    SELECT * 
+    FROM accounts 
+    ORDER BY id;
 
-    UPDATE accounts 
-    SET credit = credit + 30 
-    WHERE id = 4;
-
+    ROllBACK to sp3;
 COMMIT;
-
-ROLLBACK;
