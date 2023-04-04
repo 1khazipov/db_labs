@@ -11,17 +11,15 @@ def select_irish():
 
 
 def select_russian_irish():
-    cur = db.restaurants.find({'cuisine': 'Russian'})
-    for c in cur:
-        print(c)
-    cur = db.restaurants.find({'cuisine': 'Irish'})
+    cur = db.restaurants.find({'$or': [{'cuisine': 'Irish'},
+                                       {'cuisine': 'Russian'}]})
     for c in cur:
         print(c)
 
 
 def select_address():
-    cur = db.restaurants.find({'address.building': '284', 
-                               'address.street': 'Prospect Park West', 
+    cur = db.restaurants.find({'address.building': '284',
+                               'address.street': 'Prospect Park West',
                                'address.zipcode': '11215'})
     for c in cur:
         print(c)
