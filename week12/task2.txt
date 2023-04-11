@@ -7,13 +7,14 @@ MATCH (f2) - [b2:beats] -> (f)
 WITH f, f2, COUNT(b) AS f_count, COUNT(b2) AS f2_count 
 WHERE f_count = 1 and f2_count = 1
 RETURN f, f2;
-
-MATCH (f:Fighter)
-WITH f, size([(f)-[:beat]->() | f.name]) AS wins, size([(f)<-[:beat]-() | f.name]) AS losses
-WITH f, wins, losses, wins + losses AS total_fights
-WITH f, wins, losses, total_fights, max(total_fights) AS max_fights
-WHERE total_fights = max_fights
-RETURN f.name, wins, losses, total_fights;
+MATCH (f:Fighter)-[:beats]->(opponent)
+WITH f, count(*) as num_fights
+ORDER BY num_fights DESC
+WITH collect(f) as fighters, max(num_fights) as max_fights
+UNWIND fighters as fighter
+WITH fighter, max_fights
+WHERE size([(fighter)-[:beats]->(opponent) | opponent]) = max_fights
+RETURN fighter.name, max_fights
 
 MATCH (f:Fighter)
 WITH f, size([(f)-[:beat]->() | f.name]) AS wins, size([(f)<-[:beat]-() | f.name]) AS losses
